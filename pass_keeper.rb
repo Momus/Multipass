@@ -16,6 +16,7 @@ class Authorization
 
       if password == confirmation
         @target_password = password
+#pp  @target_password
         return
       else
       puts "The two passwords do not match.  Please try again."
@@ -32,8 +33,8 @@ end
 
 
 
-auth = Authorization.new
-auth.prompt(true)
+#auth = Authorization.new
+#auth.prompt(true)
 
-puts auth.user_password
-puts auth.target_password
+#puts auth.user_password
+#puts auth.target_password
