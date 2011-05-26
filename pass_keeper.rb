@@ -16,7 +16,7 @@ class Authorization
 
       if password == confirmation
         @target_password = password
-#pp  @target_password
+
         return
       else
       puts "The two passwords do not match.  Please try again."
@@ -30,11 +30,3 @@ class Authorization
     ask("#{message}: ") { |q| q.echo = '*' }
   end
 end
-
-
-
-#auth = Authorization.new
-#auth.prompt(true)
-
-#puts auth.user_password
-#puts auth.target_password

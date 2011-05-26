@@ -16,24 +16,62 @@ require 'rubygems'
 require 'net/ssh'
 require 'net/ssh/multi'
 
-class  Multisession < Net::SSH::Multi::Session
+
+my_ticket = Ticket.new
 
 
-  def initialize
 
-    my_ticket = Ticket.new
-    my_ticket.get_command_line
 
-    pp "Ticket" , my_ticket
-
-  end
+pp "ticket" , my_ticket
 
 
 
 
 
-end
 
- Multisession.new
 
-pp "Multi" , self
+
+
+# Net::SSH::Multi.start do |session|
+  
+#   # define the servers we want to use
+
+
+#   my_ticket.servers do |host|
+
+#     session.use host
+
+#   end
+
+
+
+#   # execute commands on all servers
+#   session.exec my_ticket.command_to_do
+
+ 
+# end
+
+
+
+# class  Multisession < Net::SSH::Multi::Session
+
+
+#   def initialize
+
+#     @my_ticket = Ticket.new
+#     @my_ticket.get_command_line
+
+#     pp "Ticket" , my_ticket
+
+#   end
+
+#   def start
+#     @concurrent_connections = @my_ticket.options[:maxsess]
+#   end
+
+
+# end
+
+# Multisession.new
+# self.start
+# pp "Multi" , self
