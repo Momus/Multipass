@@ -25,6 +25,32 @@ my_ticket = Ticket.new
 pp "ticket" , my_ticket
 
 
+#my_ticket.servers.each do |serv_id|
+#  puts "#{my_ticket.user_name}@#{serv_id}"
+#end
+
+
+opts = {}
+opts[:password] = my_ticket.user_pass
+
+Net::SSH::Multi.start  do |session|
+
+  # define the servers we want to use
+ 
+  my_ticket.servers.each do |serv_id|
+    pp session.methods
+    
+    #session.use "#{my_ticket.user_name}@#{serv_id}"
+  end
+
+
+# execute commands on all servers
+  session.exec "uptime"
+
+
+  # run the aggregated event loop
+  session.loop
+end
 
 
 
