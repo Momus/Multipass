@@ -1,0 +1,9 @@
+# All the files in the ignored directory, that's what it's for.
+/ignored
+/ignired/*
+
+#Various emacsy things
+\#*
+~*
+.\#*
+.~*
