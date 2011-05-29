@@ -31,7 +31,8 @@ BANNER_TXT
         # Define the options and display what they do
         
         @options[:password] =  false
-        opts.on( '-p' , '--password' , 'Prompt for a password to be used in the command' ) do
+        opts.on( '-p' , '--password' , \
+                 'Prompt for a password to be used in the command' ) do
           @options[:password] = true
         end
         

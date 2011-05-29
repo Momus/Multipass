@@ -1,4 +1,4 @@
-#!/usr/bin/ruby 
+#!/usr/bin/env ruby -w
 # mulitpass.rb
 
 require 'optparse' #std Ruby lib
