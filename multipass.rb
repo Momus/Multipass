@@ -8,7 +8,7 @@ load './pass_keeper.rb'
 load './ticket.rb'
 
 # Pretty print objects for a better debugging experience
-# Declaration should probably be removed in final version 
+# Declaration should probably be removed in final version
 require 'pp'
 
 
@@ -16,88 +16,27 @@ require 'rubygems'
 require 'net/ssh'
 require 'net/ssh/multi'
 
+require 'net/ssh'
+require 'net/ssh/multi'
 
+
+#The necessary data is contained in a Ticket object 
 my_ticket = Ticket.new
 
 
+Net::SSH::Multi.start do |session|
 
-
-pp "ticket" , my_ticket
-
-
-#my_ticket.servers.each do |serv_id|
-#  puts "#{my_ticket.user_name}@#{serv_id}"
-#end
-
-
-opts = {}
-opts[:password] = my_ticket.user_pass
-
-Net::SSH::Multi.start  do |session|
 
   # define the servers we want to use
- 
-  my_ticket.servers.each do |serv_id|
-    pp session.methods
-    
-    #session.use "#{my_ticket.user_name}@#{serv_id}"
+  my_ticket.servers.each do |session_server|
+    session.use session_server , :user =>  my_ticket.user_name ,  \
+    :password => my_ticket.user_pass
   end
 
 
-# execute commands on all servers
-  session.exec "uptime"
-
+  # execute commands on all servers
+  session.exec my_ticket.command_to_do
 
   # run the aggregated event loop
   session.loop
 end
-
-
-
-
-
-
-
-# Net::SSH::Multi.start do |session|
-  
-#   # define the servers we want to use
-
-
-#   my_ticket.servers do |host|
-
-#     session.use host
-
-#   end
-
-
-
-#   # execute commands on all servers
-#   session.exec my_ticket.command_to_do
-
- 
-# end
-
-
-
-# class  Multisession < Net::SSH::Multi::Session
-
-
-#   def initialize
-
-#     @my_ticket = Ticket.new
-#     @my_ticket.get_command_line
-
-#     pp "Ticket" , my_ticket
-
-#   end
-
-#   def start
-#     @concurrent_connections = @my_ticket.options[:maxsess]
-#   end
-
-
-# end
-
-# Multisession.new
-# self.start
-# pp "Multi" , self
