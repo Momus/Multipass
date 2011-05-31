@@ -31,19 +31,46 @@ Net::SSH::Multi.start do |session|
   my_ticket.servers.each do |session_server|
     session.use session_server , :user =>  my_ticket.user_name ,  \
     :password => my_ticket.user_pass
-  end
 
+    session.open_channel do |channel|
 
-  # execute commands on all servers
-  session.exec my_ticket.command_to_do do |channel, stream, data|
-    if data =~ /^\[sudo\] password for user:/
-      channel.request_pty #= true
-      channel.send_data my_ticket.user_pass
+      channel.request_pty(:term => 'xterm') do |ch, success|
+
+        if success
+          ch.exec my_ticket.command_to_do  do |ch, success|
+            if success
+              puts "command has begun executing..."
+              # this is a good place to hang callbacks like #on_data...
+            else
+              puts "alas! the command could not be invoked!"
+            end
+            
+          end
+        else
+          puts "Could not open channel"
+        end
+
+      end
+
+ 
+
+      pp "command" ,  my_ticket.command_to_do
+
     end
-    #pp "channel" , channel
-    puts "[#{channel[:host]} : #{stream}] #{data}"
-    #puts channel.methods
+    
+    
+    #shell = session.shell.open
+
+    #shell.my_ticket.command_to_do
+
+    #shell.exit
+
+
+   
   end
+
+
+
 
   # run the aggregated event loop
   session.loop
