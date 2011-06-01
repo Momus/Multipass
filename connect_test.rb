@@ -37,12 +37,22 @@ Net::SSH::Multi.start do |session|
       ch.request_pty
       ch.exec('sudo ls /root') do |c, sucess|
 
-        raise "could not request pty!" unless sucess
+        #raise "could not request pty!" unless sucess
+
+
+
+        ch.send_data( my_ticket.user_pass <<  "\n")
+
+        
 
         # "on_data" is called when the process writes something to stdout
         ch.on_data do |c, data|
-          pp 'stdout', $STDOUT.inspect
           pp  'data' , data.inspect
+          #if data =~ /\[sudo\] password/
+          #  c.send_data my_ticket.user_pass
+          #end
+
+
         end
 
         # "on_extended_data" is called when the process writes something to 
