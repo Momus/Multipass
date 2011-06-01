@@ -31,11 +31,16 @@ Net::SSH::Multi.start do |session|
   my_ticket.servers.each do |session_server|
     session.use session_server , :user =>  my_ticket.user_name ,  \
     :password => my_ticket.user_pass
+  end
 
-    session.open_channel do |ch|
 
-      ch.request_pty
-      ch.exec('sudo ls /root') do |c, sucess|
+
+  # execute commands on all servers
+
+  session.open_channel do |ch|
+
+    ch.request_pty
+    ch.exec('sudo ls /root') do |c, sucess|
 
         #raise "could not request pty!" unless sucess
 
@@ -51,33 +56,20 @@ Net::SSH::Multi.start do |session|
           #if data =~ /\[sudo\] password/
           #  c.send_data my_ticket.user_pass
           #end
-
-
-        end
+          
+          
+      end
 
         # "on_extended_data" is called when the process writes something to 
         #  stderr
         ch.on_extended_data do |c, type, data|
         #  $STDERR.print data
-        end
-
-        ch.on_close { puts "done!" }
       end
 
-      
-
+        ch.on_close { puts "done!" }
     end
 
   end
-
-
-
-
-
-
-
-    
-    
 
 
   # run the aggregated event loop
