@@ -32,46 +32,46 @@ Net::SSH::Multi.start do |session|
     session.use session_server , :user =>  my_ticket.user_name ,  \
     :password => my_ticket.user_pass
 
-    session.open_channel do |channel|
+    session.open_channel do |ch|
 
-      channel.request_pty(:term => 'xterm') do |ch, success|
+      ch.request_pty
+      ch.exec('sudo ls /root') do |c, sucess|
 
-        if success
-          ch.exec my_ticket.command_to_do  do |ch, success|
-            if success
-              puts "command has begun executing..."
-              # this is a good place to hang callbacks like #on_data...
-            else
-              puts "alas! the command could not be invoked!"
-            end
-            
-          end
-        else
-          puts "Could not open channel"
+        raise "could not request pty!" unless sucess
+
+        # "on_data" is called when the process writes something to stdout
+        ch.on_data do |c, data|
+          pp 'stdout', $STDOUT.inspect
+          pp  'data' , data.inspect
         end
 
+        # "on_extended_data" is called when the process writes something to 
+        #  stderr
+        ch.on_extended_data do |c, type, data|
+        #  $STDERR.print data
+        end
+
+        ch.on_close { puts "done!" }
       end
 
- 
-
-      pp "command" ,  my_ticket.command_to_do
+      
 
     end
-    
-    
-    #shell = session.shell.open
 
-    #shell.my_ticket.command_to_do
-
-    #shell.exit
-
-
-   
   end
 
 
 
 
+
+
+
+    
+    
+
+
   # run the aggregated event loop
   session.loop
 end
+
+
