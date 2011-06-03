@@ -1,6 +1,6 @@
   class Ticket
 
-    attr_accessor :user_name , :user_pass , :auth_pass
+    attr_accessor :user_name , :user_pass , :target_pass
     attr_accessor :options, :command 
     attr_accessor :servers ,  :server_file , :command_to_do 
 
@@ -81,7 +81,7 @@ BANNER_TXT
       
       if @options[:password]
         ticket_authorization.prompt(true)
-        @auth_pass =  ticket_authorization.target_password
+        @target_pass =  ticket_authorization.target_password
       else
         ticket_authorization.prompt
       end
