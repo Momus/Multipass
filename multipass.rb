@@ -16,9 +16,6 @@ require 'rubygems'
 require 'net/ssh'
 require 'net/ssh/multi'
 
-require 'net/ssh'
-require 'net/ssh/multi'
-
 
 #The necessary data is contained in a Ticket object 
 my_ticket = Ticket.new
@@ -34,9 +31,45 @@ Net::SSH::Multi.start do |session|
   end
 
 
-  # execute commands on all servers
-  session.exec my_ticket.command_to_do
+ session.open_channel do |channel|
+    channel.request_pty(:modes => { Net::SSH::Connection::Term::ECHO => 0 }) do |c, success|
+      raise "could not request pty" unless success
+      channel.exec   my_ticket.command_to_do
+      channel.on_data do |c_, data|
+        if data =~ /^\[sudo\] password for.*\:/
+          channel.send_data(my_ticket.user_pass + "\n")
+        end
+        if data =~ /.*:\ $/
+          channel.send_data(my_ticket.target_pass + "\n")
+        end
+
+       # if data =~ /Retype new UNIX password:/
+       #   channel.send_data(my_ticket.target_pass + "\n")
+       # end
+        
+        puts data
+        
+
+      end
+      
+     
+    end
+  end
+
+
+
 
   # run the aggregated event loop
   session.loop
 end
+
+
+# dbrengauz@IBM-03232011-Z9Z ~/dev/Multipass
+# $ ruby multipass.rb -p dmitri test/idadm_and_momus.csv 'sudo passwd dmitri'
+# Enter your admin password: **********
+# Enter password for target account: **********
+# Please, re-enter password to verify: **********
+# Enter new UNIX password:
+# Changing password for user dmitri.
+# New UNIX password:
+# /usr/lib/ruby/gems/1.8/gems/net-ssh-multi-1.1/lib/net/ssh/multi/session.rb:
