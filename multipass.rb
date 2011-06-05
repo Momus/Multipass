@@ -21,7 +21,7 @@ require 'net/ssh/multi'
 my_ticket = Ticket.new
 
 
-Net::SSH::Multi.start do |session|
+Net::SSH::Multi.start(:concurrent_connections => my_ticket.options[:maxsess]) do |session|
 
 
   # define the servers we want to use
@@ -32,6 +32,8 @@ Net::SSH::Multi.start do |session|
 
 
  session.open_channel do |channel|
+
+    #A pty is necessary for sudo, get one when we open the channel
     channel.request_pty(:modes => { Net::SSH::Connection::Term::ECHO => 0 }) do |c, success|
       raise "could not request pty" unless success
       channel.exec   my_ticket.command_to_do
@@ -43,15 +45,12 @@ Net::SSH::Multi.start do |session|
           channel.send_data(my_ticket.target_pass + "\n")
         end
 
-       # if data =~ /Retype new UNIX password:/
-       #   channel.send_data(my_ticket.target_pass + "\n")
-       # end
-        
-        puts data
-        
-
+        puts data 
+     
+        pp channel.properties[:host]   #each { |key| puts key}
       end
-      
+       
+      pp c
      
     end
   end
