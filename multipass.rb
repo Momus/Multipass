@@ -26,15 +26,24 @@ my_ticket = Ticket.new
 # the use of a proc object that is invoked when a server connection fails
 
 connect_error_handler = Proc.new do |server|
-  puts 'Attemptin to connect ...'
-    server[:connection_attempts] ||= 0
-    if server[:connection_attempts] < 3
-      server[:connection_attempts] += 1
-      throw :go, :retry
-    else
-      throw :go, :raise
-    end
-  end
+  puts "\n"
+  puts 'Connection to ' + server.host + " FAILED\n\n"
+
+
+  #In future versions, we may do something more interesting with connection errors.
+  # That code will go here.
+  # server[:connection_attempts] ||= 0
+  # puts 'Attempt ' + server[:connection_attempts].to_s
+  #   if server[:connection_attempts] < 3
+  #     server[:connection_attempts] += 1
+  #     throw :go, :retry
+  #   else
+  #    # throw :go, :raise
+  #     puts 'Connection to ' << server.host  << ' could not be established.'
+  #     #server[:on_error] = :warn
+  #     #yield
+  #   end
+end
 
 
 
@@ -47,19 +56,20 @@ Net::SSH::Multi.start(:concurrent_connections => my_ticket.options[:maxsess], \
   my_ticket.servers.each do |session_server|
     session.use session_server , :user =>  my_ticket.user_name ,  \
     :password => my_ticket.user_pass ,\
-    :verbose => :debug
-  end
+    :verbose => :fatal
+ 
 
-  # Debugging options go above in the "verbose" key.
-  #For normal operation, this should be set to 'FATAL'
-  # See File lib/net/ssh.rb :
-
-  #174            when :debug then Logger::DEBUG
-  #175:           when :info  then Logger::INFO
-  #176:           when :warn  then Logger::WARN
-  #177:           when :error then Logger::ERROR
-  #178:           when :fatal then Logger::FATAL
-
+    # Debugging options go above in the "verbose" key.
+    #For normal operation, this should be set to 'FATAL'
+    # See File lib/net/ssh.rb :
+    
+    #174            when :debug then Logger::DEBUG
+    #175:           when :info  then Logger::INFO
+    #176:           when :warn  then Logger::WARN
+    #177:           when :error then Logger::ERROR
+    #178:           when :fatal then Logger::FATAL
+    # http://net-ssh.rubyforge.org/ssh/v2/api/classes/Net/SSH.html
+ end
 
   # Open an RFC 4254 channel
   # http://tools.ietf.org/html/rfc4254#page-5
@@ -76,8 +86,16 @@ Net::SSH::Multi.start(:concurrent_connections => my_ticket.options[:maxsess], \
       raise "could not request pty" unless success
       
       #sends the command to the channel, ignoring any preceeding data:
-      channel.exec   my_ticket.command_to_do
+      channel.exec   my_ticket.command_to_do do  |ch, success|
+
+        #This will only show if the command could not be executed, not if it fails
+        # execution, so it's kinda useless.
+        raise my_ticket.command_to_do + "not executed" unless success
+
+      end
  
+
+
       # According to rfc4254 Section 5.2.:
       #       Data transfer is done with messages of the following type.
       #
@@ -103,16 +121,17 @@ Net::SSH::Multi.start(:concurrent_connections => my_ticket.options[:maxsess], \
           channel.send_data(my_ticket.target_pass + "\n")
         else
 
+          puts "Result:\n"
           puts  data 
-     
+          
  
         end
  
       end
        
-        pp channel.properties[:host]   #each { |key| puts key} 
+        #pp channel.properties[:host]   #each { |key| puts key} 
 
-         #pp c
+         
      
     end
   end
