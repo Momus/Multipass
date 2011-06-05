@@ -35,8 +35,13 @@ Net::SSH::Multi.start(:concurrent_connections => my_ticket.options[:maxsess]) do
 
  session.open_channel do |channel|
 
+    
+    #  Tell the user what's going on:
+    
+    puts "\n\n\n"
+    puts "Starting a new ssh session on " + channel.properties[:host]
 
-    #A pty is necessary for sudo, get one when we open the channel
+    # A pty is necessary for sudo, get one when we open the channel
     channel.request_pty(:modes => { Net::SSH::Connection::Term::ECHO => 0 }) do |c, success|
       raise "could not request pty" unless success
       
@@ -50,9 +55,17 @@ Net::SSH::Multi.start(:concurrent_connections => my_ticket.options[:maxsess]) do
       #          uint32    recipient channel
       #          string    data
 
-      
+      # The "data" in the codeblock below is the "data" string returned
+      # in accordance with above.
+
+
+      # See also:  http://net-ssh.github.com/ssh/v1/chapter-3.html#s1
            
      channel.on_data do |c_, data|
+
+        # Scan channel data string for password prompts, sending 
+        # the appropriate string to each one.  
+
         if data =~ /^\[sudo\] password for.*\:/
           channel.send_data(my_ticket.user_pass + "\n")
         end
@@ -90,4 +103,4 @@ end
 # Enter new UNIX password:
 # Changing password for user dmitri.
 # New UNIX password:
-# /usr/lib/ruby/gems/1.8/gems/net-ssh-multi-1.1/lib/net/ssh/multi/session.rb:
+
