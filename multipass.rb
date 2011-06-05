@@ -21,14 +21,45 @@ require 'net/ssh/multi'
 my_ticket = Ticket.new
 
 
-Net::SSH::Multi.start(:concurrent_connections => my_ticket.options[:maxsess]) do |session|
+
+# Connection errors can be handled rather gracefully in net-ssh-multi through
+# the use of a proc object that is invoked when a server connection fails
+
+connect_error_handler = Proc.new do |server|
+  puts 'Attemptin to connect ...'
+    server[:connection_attempts] ||= 0
+    if server[:connection_attempts] < 3
+      server[:connection_attempts] += 1
+      throw :go, :retry
+    else
+      throw :go, :raise
+    end
+  end
+
+
+
+
+Net::SSH::Multi.start(:concurrent_connections => my_ticket.options[:maxsess], \
+                      :on_error => connect_error_handler) do |session|
 
 
   # define the servers we want to use
   my_ticket.servers.each do |session_server|
     session.use session_server , :user =>  my_ticket.user_name ,  \
-    :password => my_ticket.user_pass
+    :password => my_ticket.user_pass ,\
+    :verbose => :debug
   end
+
+  # Debugging options go above in the "verbose" key.
+  #For normal operation, this should be set to 'FATAL'
+  # See File lib/net/ssh.rb :
+
+  #174            when :debug then Logger::DEBUG
+  #175:           when :info  then Logger::INFO
+  #176:           when :warn  then Logger::WARN
+  #177:           when :error then Logger::ERROR
+  #178:           when :fatal then Logger::FATAL
+
 
   # Open an RFC 4254 channel
   # http://tools.ietf.org/html/rfc4254#page-5
@@ -36,9 +67,8 @@ Net::SSH::Multi.start(:concurrent_connections => my_ticket.options[:maxsess]) do
  session.open_channel do |channel|
 
     
-    #  Tell the user what's going on:
-    
-    puts "\n\n\n"
+    #  Tell the user what's going on, with a little whitespace for clarity:
+    puts "\n\n"
     puts "Starting a new ssh session on " + channel.properties[:host]
 
     # A pty is necessary for sudo, get one when we open the channel
