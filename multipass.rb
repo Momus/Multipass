@@ -30,27 +30,46 @@ Net::SSH::Multi.start(:concurrent_connections => my_ticket.options[:maxsess]) do
     :password => my_ticket.user_pass
   end
 
+  # Open an RFC 4254 channel
+  # http://tools.ietf.org/html/rfc4254#page-5
 
  session.open_channel do |channel|
+
 
     #A pty is necessary for sudo, get one when we open the channel
     channel.request_pty(:modes => { Net::SSH::Connection::Term::ECHO => 0 }) do |c, success|
       raise "could not request pty" unless success
+      
+      #sends the command to the channel, ignoring any preceeding data:
       channel.exec   my_ticket.command_to_do
-      channel.on_data do |c_, data|
+ 
+      # According to rfc4254 Section 5.2.:
+      #       Data transfer is done with messages of the following type.
+      #
+      #          byte      SSH_MSG_CHANNEL_DATA
+      #          uint32    recipient channel
+      #          string    data
+
+      
+           
+     channel.on_data do |c_, data|
         if data =~ /^\[sudo\] password for.*\:/
           channel.send_data(my_ticket.user_pass + "\n")
         end
         if data =~ /.*:\ $/
           channel.send_data(my_ticket.target_pass + "\n")
-        end
+        else
 
-        puts data 
+          puts  data 
      
-        pp channel.properties[:host]   #each { |key| puts key}
+ 
+        end
+ 
       end
        
-      pp c
+        pp channel.properties[:host]   #each { |key| puts key} 
+
+         #pp c
      
     end
   end
