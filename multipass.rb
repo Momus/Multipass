@@ -169,7 +169,7 @@ Net::SSH::Multi.start(:concurrent_connections => my_ticket.options[:maxsess], \
 end
 
 
-pp 'result hash' ,  @result_hash
+#pp 'result hash' ,  @result_hash
 
 
 # The first version of this script will place results in a file
@@ -177,10 +177,27 @@ pp 'result hash' ,  @result_hash
 
 # The name will be in the format hr_min_sec_day-month-yy.csv
 
+
+#def write_to_csv(hash_of_results)
+
 time_string = Time.now.strftime("%Hh%Mm%Ss-%d-%b-%y")
 file_name = 'results/' + time_string + ".csv"
-pp "file to write" , file_name
+pp "Output written to:" , file_name
 
+
+CSV.open(file_name , "w") do |csv|
+
+  #The keys in the result hash are the hosts, extract those as well
+# The values are Channel_Result_Structs (:time_stamp , :result)
+
+csv << ["Time Stamp" , "Host" , "Command Output"]
+
+  @result_hash.each_pair do |key,value|
+
+    csv << [ value.time_stamp , key ,  value.result]
+  end
+
+end
 
 
 
