@@ -14,18 +14,31 @@
 
         # Display a banner at the top of help screen
         opts.banner = <<BANNER_TXT
-Multipass:  Run your command on a group of servers simultaniously.  
 
-Usage:  multipass.rb [options] user_name server_file.csv \'command\' \n 
+Multipass:  Run your command on a group of servers simultaneously.  
 
-user_name:        the shortname you use to adminster the servers
+Usage:  multipass.rb [options] user_name server_file.csv 'command' 
+ 
+If the p flag is specified, multipass will prompt for a second
+password to be used if the command that is run requires one. For
+example: 'multipass -p username serverlist.csv 'sudo passwd'
+would first prompt the user 'username' for his administrative password
+then it would prompt for a second password twice to verify that it is
+correct, which will be passed to the shell when the 'passwd' command
+executes.
+
+user_name:        the short-name you use to administer the servers
 
 server_file.csv:  a list servers (resolvable FQDNs or IP's) in a comma
-                  seperated variable (CSV) file.
+                  separated variable (CSV) file.  As of this version,
+                  the file may only contain IPs or FQDNs each in a
+                  separate cell.
 
 'command' :       command to be run on the servers.
 THE COMMAND MUST BE ENCLOSED IN SINGLE QUOTES, AS ABOVE
 
+
+Options:
 BANNER_TXT
 
         # Define the options and display what they do

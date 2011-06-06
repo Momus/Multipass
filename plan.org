@@ -17,18 +17,24 @@ http://www.ibm.com/developerworks/opensource/tutorials/os-distruby/
 
 *** Recipe 20.8. Driving an External Process with popen
 
- 
+Problem:  You want to execute an external command in a subprocess.
+    You want to pass some data into its standard input stream, and
+    read its standard output.
+    
+Solution: If you don't care about
+the standard input side of things, you can just use the %x{}
+construction.  This runs a string as a command in an operating
+system subshell, and returns the standard output of the command as a
+string.
+%x{whoami}                                           # => "leonardr\n"
+puts %x{ls -a empty_dir}
 
 
-ProblemYou want to execute an external command in a subprocess. You want to pass some data into its standard input stream, and read its standard output.
-SolutionIf you don't care about the standard input side of things, you can just use the %x{} construction. This runs a string as a command in an operating system subshell, and returns the standard output of the command as a string.        %x{whoami}                                           # => "leonardr\n"
-        puts %x{ls -a empty_dir}
-        # .
-        # ..
 
-
-If you want to pass data into the standard input of the subprocess, do it in a code block that you pass into the IO. 
-popen method. Here's IO.popen used on a Unix system to invoke tail, a command that prints to standard output the last few lines of its standard input:        IO.popen('tail -3', 'r+') do |pipe|
+If you want to pass data into the standard input of the subprocess,
+do it in a code block that you pass into the IO. 
+popen method. Here's IO.popen used on a Unix system to invoke tail,
+a command that prints to standard output the last few lines of its standard input:        IO.popen('tail -3', 'r+') do |pipe|
           1.upto(100) { |i| pipe >> "This is line #{i}.\n" }
           pipe.close_write
           puts pipe.read
@@ -126,5 +132,12 @@ The read and write objects in the PTY#spawn block are IO objects. The expect lib
 See AlsoRecipe 20.8, "Driving an  
 External Process with popen"Recipe 21.9, "Reading a Password," shows how to obtain a password without echoing it to the screen
 
+<<<<<<< HEAD
 
 
+=======
+
+* Session
+
+** TODO use net-ssh-multi
+   
