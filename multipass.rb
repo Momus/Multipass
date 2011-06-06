@@ -151,7 +151,7 @@ Net::SSH::Multi.start(:concurrent_connections => my_ticket.options[:maxsess], \
 
         end
  
-      end
+      end 
        
 #      pp "Struct?" ,  result_struct
         #pp channel.properties[:host]   #each { |key| puts key} 
@@ -169,7 +169,18 @@ Net::SSH::Multi.start(:concurrent_connections => my_ticket.options[:maxsess], \
 end
 
 
-pp 'resutl hash' ,  @result_hash
+pp 'result hash' ,  @result_hash
+
+
+# The first version of this script will place results in a file
+# with a dynamically generated name
+
+# The name will be in the format hr_min_sec_day-month-yy.csv
+
+time_string = Time.now.strftime("%Hh%Mm%Ss-%d-%b-%y")
+file_name = 'results/' + time_string + ".csv"
+pp "file to write" , file_name
+
 
 
 

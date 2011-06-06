@@ -13,7 +13,7 @@ http://www.ibm.com/developerworks/opensource/tutorials/os-distruby/
 ** DONE read csv file into an array
 
 
-** TODO Pass new password string to useradd
+** DONE Pass new password string to useradd
 
 *** Recipe 20.8. Driving an External Process with popen
 
@@ -137,7 +137,17 @@ External Process with popen"Recipe 21.9, "Reading a Password," shows how to obta
 
 =======
 
-* Session
 
-** TODO use net-ssh-multi
+**  TODO Capture session connection errors.
 
+* Output
+
+** DONE print session data to console
+
+** TODO Capture session data to CSV
+
+*** DONE Insert session data into a well-formated object
+
+*** TODO Open file with auto-generated name for writing
+
+*** TODO Read results hash into file using Ruby CSV library 
