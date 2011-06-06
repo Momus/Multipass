@@ -85,8 +85,8 @@ Net::SSH::Multi.start(:concurrent_connections => my_ticket.options[:maxsess], \
     hostname = channel.properties[:host]
     
     #  Tell the user what's going on, with a little whitespace for clarity:
-    puts "\n\n"
-    puts "Starting a new ssh session on " +  hostname
+    #puts "\n\n"
+    #puts "Starting a new ssh session on " +  hostname
 
     #  Make a new container for our data
 
@@ -143,7 +143,7 @@ Net::SSH::Multi.start(:concurrent_connections => my_ticket.options[:maxsess], \
           result_struct.result =  result_struct[:result] + data
 
           #puts "Result:\n"
-          puts  data 
+          puts  '[' + hostname + ']  ' + data 
           
           @result_hash[hostname] = result_struct
           
