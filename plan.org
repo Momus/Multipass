@@ -5,15 +5,15 @@ http://www.ibm.com/developerworks/opensource/tutorials/os-distruby/
 
 * Input
 
-** Get command line arguments from command line.  Put them somewhere
+** DONE Get command line arguments from command line.  Put them somewhere
 
 
 * Processing
 
-** read csv file into an array
+** DONE read csv file into an array
 
 
-** Pass new password string to useradd
+** TODO Pass new password string to useradd
 
 *** Recipe 20.8. Driving an External Process with popen
 
@@ -126,6 +126,5 @@ The read and write objects in the PTY#spawn block are IO objects. The expect lib
 See AlsoRecipe 20.8, "Driving an  
 External Process with popen"Recipe 21.9, "Reading a Password," shows how to obtain a password without echoing it to the screen
 
-* Session
 
-** use net-ssh-multi
+
