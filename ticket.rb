@@ -1,7 +1,7 @@
   class Ticket
 
     attr_accessor :user_name , :user_pass , :target_pass
-    attr_accessor :options, :command 
+    attr_accessor :options, :command , :debug_level 
     attr_accessor :servers ,  :server_file , :command_to_do 
 
 
@@ -54,6 +54,15 @@ BANNER_TXT
                  'Change number of ssh sessions from default to NUM') do |m| 
           @options[:maxsess] = m
         end
+        @options[:debug_level] = ":fatal"
+        opts.on( '-d' , '--debug_level :level' , String,\
+                 "Set the debug level with which to run the program.\n" +\
+                 "Options are: :debug :info :warn :error :fatal") do |opt|
+          @options[:debug_level] = opt
+        end
+
+
+        
         
         # This displays the help screen, all programs are
         # assumed to have this option.

@@ -62,7 +62,7 @@ Net::SSH::Multi.start(:concurrent_connections => my_ticket.options[:maxsess], \
   my_ticket.servers.each do |session_server|
     session.use session_server , :user =>  my_ticket.user_name ,  \
     :password => my_ticket.user_pass ,\
-    :verbose => :fatal
+    :verbose => my_ticket.debug_level
  
 
     # Debugging options go above in the "verbose" key.
@@ -146,17 +146,11 @@ Net::SSH::Multi.start(:concurrent_connections => my_ticket.options[:maxsess], \
           puts  '[' + hostname + ']  ' + data 
           
           @result_hash[hostname] = result_struct
-          
-          
-
         end
  
       end 
        
-#      pp "Struct?" ,  result_struct
-        #pp channel.properties[:host]   #each { |key| puts key} 
-
-         
+    
      
     end
   end
@@ -169,7 +163,7 @@ Net::SSH::Multi.start(:concurrent_connections => my_ticket.options[:maxsess], \
 end
 
 
-#pp 'result hash' ,  @result_hash
+
 
 
 # The first version of this script will place results in a file
@@ -188,9 +182,9 @@ pp "Output written to:" , file_name
 CSV.open(file_name , "w") do |csv|
 
   #The keys in the result hash are the hosts, extract those as well
-# The values are Channel_Result_Structs (:time_stamp , :result)
+  # The values are Channel_Result_Structs (:time_stamp , :result)
 
-csv << ["Time Stamp" , "Host" , "Command Output"]
+  csv << ["Time Stamp" , "Host" , "Command Output"]
 
   @result_hash.each_pair do |key,value|
 
@@ -198,37 +192,3 @@ csv << ["Time Stamp" , "Host" , "Command Output"]
   end
 
 end
-
-
-
-
-
-# Starting a new ssh session on 208.111.39.128
-# Result:
-#  03:38:14 up 10 days, 18:50,  1 user,  load average: 0.00, 0.00, 0.00
-# "resutl hash"
-# {"208.111.39.128"=>
-#   #<struct Channel_Result_Struct
-#    time_stamp=Mon Jun 06 08:38:14 -0600 2011,
-#    result=
-#     " 03:38:14 up 10 days, 18:50,  1 user,  load average: 0.00, 0.00, 0.00\r\n">
-# ,
-#  "127.0.0.1"=>
-#   #<struct Channel_Result_Struct
-#    time_stamp=Mon Jun 06 08:38:13 -0600 2011,
-#    result="Connection to 127.0.0.1 FAILED">}
-
-
-
-
-
-
-# dbrengauz@IBM-03232011-Z9Z ~/dev/Multipass
-# $ ruby multipass.rb -p dmitri test/idadm_and_momus.csv 'sudo passwd dmitri'
-# Enter your admin password: **********
-# Enter password for target account: **********
-# Please, re-enter password to verify: **********
-# Enter new UNIX password:
-# Changing password for user dmitri.
-# New UNIX password:
-

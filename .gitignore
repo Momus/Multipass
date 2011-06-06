@@ -8,3 +8,9 @@
 ~*
 .\#*
 .~*
+
+#We don't need  many (any) of the results
+results/*h*m*
+
+#and few of the server files
+test/*ist*:
