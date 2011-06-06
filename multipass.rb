@@ -40,7 +40,7 @@ connect_error_handler = Proc.new do |server|
 
   #Log them
 
-  result_struct  = Channel_Result_Struct.new  # = Struct.new(:time_stamp ,:result)
+  result_struct  = Channel_Result_Struct.new  
   result_struct[:time_stamp] = Time.now
   result_struct[:result] = "Connection to " + server.host + " FAILED"
   @result_hash[server.host] = result_struct
@@ -92,9 +92,12 @@ Net::SSH::Multi.start(:concurrent_connections => my_ticket.options[:maxsess], \
 
     #Have a container ready for the output
 
-    result_struct  = Channel_Result_Struct.new  # = Struct.new(:time_stamp ,:result)
+    result_struct  = Channel_Result_Struct.new  #Struct.new(:time_stamp ,:result)
 
     result_struct[:time_stamp] = Time.now
+
+    #The :result key must point to a string
+    result_struct[:result] = " "
 
     # A pty is necessary for sudo, get one when we open the channel
     channel.request_pty(:modes => { Net::SSH::Connection::Term::ECHO => 0 }) do |c, success|
@@ -136,18 +139,19 @@ Net::SSH::Multi.start(:concurrent_connections => my_ticket.options[:maxsess], \
           channel.send_data(my_ticket.target_pass + "\n")
         else
           
-          result_struct[:result] = data
+          #result_struct[:result] = data
+          result_struct.result =  result_struct[:result] + data
 
-          puts "Result:\n"
+          #puts "Result:\n"
           puts  data 
-          #pp "Struct?" ,  result_struct
+          
           @result_hash[hostname] = result_struct
           
           
 
         end
  
-      end
+      end 
        
 #      pp "Struct?" ,  result_struct
         #pp channel.properties[:host]   #each { |key| puts key} 
@@ -165,7 +169,57 @@ Net::SSH::Multi.start(:concurrent_connections => my_ticket.options[:maxsess], \
 end
 
 
-pp 'resutl hash' ,  @result_hash
+#pp 'result hash' ,  @result_hash
+
+
+# The first version of this script will place results in a file
+# with a dynamically generated name
+
+# The name will be in the format hr_min_sec_day-month-yy.csv
+
+
+#def write_to_csv(hash_of_results)
+
+time_string = Time.now.strftime("%Hh%Mm%Ss-%d-%b-%y")
+file_name = 'results/' + time_string + ".csv"
+pp "Output written to:" , file_name
+
+
+CSV.open(file_name , "w") do |csv|
+
+  #The keys in the result hash are the hosts, extract those as well
+# The values are Channel_Result_Structs (:time_stamp , :result)
+
+csv << ["Time Stamp" , "Host" , "Command Output"]
+
+  @result_hash.each_pair do |key,value|
+
+    csv << [ value.time_stamp , key ,  value.result]
+  end
+
+end
+
+
+
+
+
+# Starting a new ssh session on 208.111.39.128
+# Result:
+#  03:38:14 up 10 days, 18:50,  1 user,  load average: 0.00, 0.00, 0.00
+# "resutl hash"
+# {"208.111.39.128"=>
+#   #<struct Channel_Result_Struct
+#    time_stamp=Mon Jun 06 08:38:14 -0600 2011,
+#    result=
+#     " 03:38:14 up 10 days, 18:50,  1 user,  load average: 0.00, 0.00, 0.00\r\n">
+# ,
+#  "127.0.0.1"=>
+#   #<struct Channel_Result_Struct
+#    time_stamp=Mon Jun 06 08:38:13 -0600 2011,
+#    result="Connection to 127.0.0.1 FAILED">}
+
+
+
 
 
 
