@@ -21,31 +21,37 @@ require 'net/ssh/multi'
 my_ticket = Ticket.new
 
 
+#Have a container ready for the output
+
+Channel_Result_Struct = Struct.new(:time_stamp , \
+                             :result)
+
+@result_hash = Hash.new
+
+
+
+
+
 
 # Connection errors can be handled rather gracefully in net-ssh-multi through
 # the use of a proc object that is invoked when a server connection fails
 
 connect_error_handler = Proc.new do |server|
+
+  #Log them
+
+  result_struct  = Channel_Result_Struct.new  # = Struct.new(:time_stamp ,:result)
+  result_struct[:time_stamp] = Time.now
+  result_struct[:result] = "Connection to " + server.host + " FAILED"
+  @result_hash[server.host] = result_struct
+
+  #And print them out to the console
+
   puts "\n"
   puts 'Connection to ' + server.host + " FAILED\n\n"
 
 
-  #In future versions, we may do something more interesting with connection errors.
-  # That code will go here.
-  # server[:connection_attempts] ||= 0
-  # puts 'Attempt ' + server[:connection_attempts].to_s
-  #   if server[:connection_attempts] < 3
-  #     server[:connection_attempts] += 1
-  #     throw :go, :retry
-  #   else
-  #    # throw :go, :raise
-  #     puts 'Connection to ' << server.host  << ' could not be established.'
-  #     #server[:on_error] = :warn
-  #     #yield
-  #   end
 end
-
-
 
 
 Net::SSH::Multi.start(:concurrent_connections => my_ticket.options[:maxsess], \
@@ -76,10 +82,19 @@ Net::SSH::Multi.start(:concurrent_connections => my_ticket.options[:maxsess], \
 
  session.open_channel do |channel|
 
+    hostname = channel.properties[:host]
     
     #  Tell the user what's going on, with a little whitespace for clarity:
     puts "\n\n"
-    puts "Starting a new ssh session on " + channel.properties[:host]
+    puts "Starting a new ssh session on " +  hostname
+
+    #  Make a new container for our data
+
+    #Have a container ready for the output
+
+    result_struct  = Channel_Result_Struct.new  # = Struct.new(:time_stamp ,:result)
+
+    result_struct[:time_stamp] = Time.now
 
     # A pty is necessary for sudo, get one when we open the channel
     channel.request_pty(:modes => { Net::SSH::Connection::Term::ECHO => 0 }) do |c, success|
@@ -120,15 +135,21 @@ Net::SSH::Multi.start(:concurrent_connections => my_ticket.options[:maxsess], \
         if data =~ /.*:\ $/
           channel.send_data(my_ticket.target_pass + "\n")
         else
+          
+          result_struct[:result] = data
 
           puts "Result:\n"
           puts  data 
+          #pp "Struct?" ,  result_struct
+          @result_hash[hostname] = result_struct
           
- 
+          
+
         end
  
       end
        
+#      pp "Struct?" ,  result_struct
         #pp channel.properties[:host]   #each { |key| puts key} 
 
          
@@ -142,6 +163,10 @@ Net::SSH::Multi.start(:concurrent_connections => my_ticket.options[:maxsess], \
   # run the aggregated event loop
   session.loop
 end
+
+
+pp 'resutl hash' ,  @result_hash
+
 
 
 # dbrengauz@IBM-03232011-Z9Z ~/dev/Multipass
