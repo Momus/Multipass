@@ -7,14 +7,13 @@
 \author{Dmitri G. Brengauz\thanks{Thanks to Jason Goode, Don Miller,
     and Ray Allarakhia for feedback and support.}\\
 \small End User Services; Id Administration\\
-\small International Business Machines \\
-\small 6300 Diagonal Hwy\\
-\small Boulder, CO 80301-6108\\
+\small for International Business Machines \\
+%\small 6300 Diagonal Hwy\\
+%\small Boulder, CO 80301-6108\\
 \small \texttt{dmitri@us.ibm.com}\\
 }
 
-\date{\dateline{Jan 1, 2009}{Jan 2, 2009}{Jan 3, 2009}\\
-\small Mathematics Subject Classifications: 05C88, 05C89}
+\date{07 June 2011}
 
 \begin{document}
 \maketitle
@@ -27,14 +26,62 @@ Abstract goes here, if it really needs it.
 
 \section{Introduction}
 
-The 
+The problem at hand:
+
+When I was first hired here, I looked in amazement at the list of over
+200 Sun servers, which was attached to my access approval form.  The
+sheer computing power that this represents is staggering.  However,
+for all their robustness, the clients soon seem 
+
+the \texttt{passwd} utility, which is still a simple script to
+consistently modify the \texttt{/etc/password} file, not much changed
+since AT\&T's Version 6 UNIX of May, 1975.\footnote{ (2007,May
+  8). passwd(5) FreeBSD manual page.}
+
+
+
+
+\section{Existing Alternatives}
+
+Other accounts have used 
+Ruby --easily accessible.  Self-documenting code.
+
 
 
 \section{Multipass}
 
+Wasting bandwidth by sending packets to keep streams open while the
+server patiently waits for the human to type in the password.   
 
 
-\section{Thor and other frameworks}
+Cross-platform:  tested it at home on a FreeBSD workstation, an  AT\&T
+UNIX descendant that has little in common with the ``Windows NT 5.1''
+operating system on EUS Admin workstations.
+
+
+\section{Thor , frameworks, and beyond}
+
+Routine maintenance operations, such as locking accounts, could be
+scheduled to run on off-peak times using Unix's built-in \texttt{cron}
+utility, allowing agents to prioritize clients' most urgent needs. 
+
+
+There are many Ruby tools in production that facilitate the concurrent
+management of several servers, the most famous one probably being the
+Capistrano\footnote{https://github.com/capistrano/capistrano/wiki} framework.
+
+Virtual server: a project like this has very low initial overhead,
+greater resources only become required as the tools are used by a
+greater amount of users.  
+
+
+Open standards make possible the taking of a system of imposing
+complexity, and segmenting it into manageable chunks.
+
+
+
+Options made possible not by an outside vendor whose production cycles
+determine what is possible, but by an open framework 
 
 
 \section{Conclusion}
