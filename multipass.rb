@@ -62,7 +62,7 @@ Net::SSH::Multi.start(:concurrent_connections => my_ticket.options[:maxsess], \
   my_ticket.servers.each do |session_server|
     session.use session_server , :user =>  my_ticket.user_name ,  \
     :password => my_ticket.user_pass ,\
-    :verbose => my_ticket.debug_level
+    :verbose => :error
  
 
     # Debugging options go above in the "verbose" key.
@@ -132,28 +132,27 @@ Net::SSH::Multi.start(:concurrent_connections => my_ticket.options[:maxsess], \
         # Scan channel data string for password prompts, sending 
         # the appropriate string to each one.  
 
-        if data =~ /^\[sudo\] password for.*\:/
+        if data =~ /^Password\:$/x
           channel.send_data(my_ticket.user_pass + "\n")
-        end
-        if data =~ /.*:\ $/
+        
+        else data =~ /.*\:$/x
           channel.send_data(my_ticket.target_pass + "\n")
-        else
-          
-          #result_struct[:result] = data
-          result_struct.result =  result_struct[:result] + data
-
-          #puts "Result:\n"
-          puts  '[' + hostname + ']  ' + data 
-          
-          @result_hash[hostname] = result_struct
         end
- 
-      end 
+          
+        #result_struct[:result] = data
+        result_struct.result =  result_struct[:result] + data
+        
+        #puts "Result:\n"
+        puts  '[' + hostname + ']  ' + data 
+          
+        @result_hash[hostname] = result_struct
+      end
+    end
+  end 
        
     
      
-    end
-  end
+
 
 
 

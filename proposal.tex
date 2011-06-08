@@ -26,17 +26,39 @@ Abstract goes here, if it really needs it.
 
 \section{Introduction}
 
-The problem at hand:
-
 When I was first hired here, I looked in amazement at the list of over
-200 Sun servers, which was attached to my access approval form.  The
+200 Sun servers that  was attached to my access approval form.  The
 sheer computing power that this represents is staggering.  However,
-for all their robustness, the clients soon seem 
+after working with them for even a short time, one quickly sees that
+this  capacity seldom goes to waste:  many of these servers are
+already running as hard as they can.
 
-the \texttt{passwd} utility, which is still a simple script to
+
+These are the dual challenges of a Unix account: managing a
+great number of servers, and doing so in a matter that leaves the
+smallest possible administrative footprint.  
+
+Currently, the way these servers are administered is through an agent
+establishing an interactive Secure Shell session to the server from
+the agent's laptop, which is itself connected to the client's LAN
+through a SOCS proxy.  
+
+User management is by means of userland\footnote{`` \textbf{userland}:
+  n.\\ Anywhere outside the kernel. ``That code belongs in userland.''
+  This term has been in common use among Unix kernel hackers since at
+  least 1985, and may have have originated in that community. The
+  earliest sighting was reported from the usenet group
+  net.unix-wizards. (Raymond, Eric S., \textit{et al.} \textit{The
+    Jargon File} version 4.4.7, 29 Dec 2003}  tools that are a part of the standard
+operating system installation.  Users are created and modified with
+the \texttt{useradd} command.  The \texttt{passwd} utility is used to
+manage authentication tokens.  It remains a simple script to
 consistently modify the \texttt{/etc/password} file, not much changed
 since AT\&T's Version 6 UNIX of May, 1975.\footnote{ (2007,May
   8). passwd(5) FreeBSD manual page.}
+
+
+
 
 
 
