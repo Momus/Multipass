@@ -148,17 +148,12 @@ Net::SSH::Multi.start(:concurrent_connections => my_ticket.options[:maxsess], \
         @result_hash[hostname] = result_struct
       end
     end
-  end 
-       
     
-     
+    # run the aggregated event loop
+    session.loop      
 
+  end 
 
-
-
-
-  # run the aggregated event loop
-  session.loop
 end
 
 

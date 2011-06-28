@@ -7,9 +7,9 @@ class  List_from_csv
 
 attr_reader :list , :file
    
-  def initialize(cvs_file)
+  def initialize(csv_file)
 
-    @file = cvs_file
+    @file = csv_file
     @list = Array.new
 
     CSV.open(@file , 'r') do |row|
