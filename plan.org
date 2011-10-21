@@ -1,159 +1,59 @@
 
 http://www.ibm.com/developerworks/opensource/tutorials/os-distruby/
 
+* Before refraction
 
+** Files
 
-* Input
+*** multipass.rb
 
-** DONE Get command line arguments from command line.  Put them somewhere
+**** self
 
+***** initialize
 
-* Processing
+****** Net::SSH::Multi.start
 
-** DONE read csv file into an array
+****** CSV.open(file_name , "w") do |csv|
 
+***** connect_error_handler = Proc.new
 
-** DONE Pass new password string to useradd
+*** ticket.rb
 
-*** Recipe 20.8. Driving an External Process with popen
+**** class Ticket
 
-Problem:  You want to execute an external command in a subprocess.
-    You want to pass some data into its standard input stream, and
-    read its standard output.
-    
-Solution: If you don't care about
-the standard input side of things, you can just use the %x{}
-construction.  This runs a string as a command in an operating
-system subshell, and returns the standard output of the command as a
-string.
-%x{whoami}                                           # => "leonardr\n"
-puts %x{ls -a empty_dir}
+***** attr_accessor :user_name , :user_pass , :target_pass
+***** attr_accessor :options, :command , :debug_level
+***** attr_accessor :servers ,  :server_file , :command_to_do
 
+*** list_from_csv.rb
 
+**** class List_from_csv
 
-If you want to pass data into the standard input of the subprocess,
-do it in a code block that you pass into the IO. 
-popen method. Here's IO.popen used on a Unix system to invoke tail,
-a command that prints to standard output the last few lines of its standard input:        IO.popen('tail -3', 'r+') do |pipe|
-          1.upto(100) { |i| pipe >> "This is line #{i}.\n" }
-          pipe.close_write
-          puts pipe.read
-        end
-        # This is line 98.
-        # This is line 99.
-        # This is line 100.
+***** attr_reader :list , :file
 
+***** initialize(csv_file)
 
+*** results.rb
 
+**** Channel_Result_Struct = Struct.new
 
-DiscussionIO.popens pawns a subprocess and creates a pipe: an IO stream connecting the Ruby interpreter to the subprocess. IO.popen makes the pipe available to a code block, just as File.open makes an open file available to a code block. Writing to the IO object sends data to the standard input of the subprocess; reading from it reads data from its standard output.IO.popen takes a file mode, just like File.open. To use both the standard input and output of a subprocess, you need to open it in read-write mode ("r+").A command that accepts standard input won't really start running until its input stream is closed. If you use popen to run a command like tail, you must call pipe. close_write before you read from the pipe. If you try to read the subprocess' standard output while the subprocess is waiting for you to send it data on standard input, both processes will hang forever.The %{} construct and the popen technique work on both Windows and Unix, but scripts that use them won't usually be portable, because it's very unlikely that the command you're running exists on all platforms.On Unix systems, you can also use popen to spawn a Ruby subprocess. This is like calling fork, except that the parent gets a read-write filehandle that's hooked up to the standard input and output of the child. Unlike with Kernel#fork (but like C's implementation of fork), the same code block is called for the parent and the child. The presence or absence of the filehandle is the only way to know whether you're the parent or the child:        IO.popen('-', 'r+') do |child_filehandle|
-          if child_filehandle
-            $stderr.puts "I am the parent: #{child_filehandle.inspect}"
-            child_filehandle.puts '404'
-            child_filehandle.close_write
-            puts "My child says the square root of 404 is #{child_filehandle.read}"
-          else
-            $stderr.puts "I am the child: #{child_filehandle.inspect}"
-            number = $stdin.readline.strip.to_i
-            $stdout.puts Math.sqrt(number)
-          end
-        end
-        # I am the child: nil
-        # I am the parent: #<IO:0xb7d25b9c>
-        # My child says the square root of 404 is 20.0997512422418
+*** pass_keeper.rb
+
+**** class Authorization
+
+***** attr_reader :user_password , :target_password
+
+***** def prompt
+
+*****  def ask_for_password(message)
 
 
 
 
 
+* Model
 
-*** Recipe 23.1. Scripting an External Program
+* View
 
-Problem:  You want to automatically control an external program that
-expects to get terminal input from a human user
-
-Solution: When you're running a program that only needs a single
- string of  input, you can use IO.popen, as described in Recipe 20.8.
- This method runs a command, sends it a string as standard input, and
- returns the contents of its standard output: 
-
-       def run(command, input='')
-           
-IO.popen(command, 'r+') do |io|
-            io.puts input
-            io.close_write
-            return io.read
-           end
-        end
-
-        run 'wc -w', 'How many words are in this string?'      # => "7\n"
-
-
-This technique is commonly used to invoke a command with sudo, which expects the user's password on standard input. This code obtains a user's password and runs a command on his behalf using sudo:        print 'Enter your password for sudo: '
-        sudo_password = gets.chomp
-        run('sudo apachectl graceful', user_password)
-
-
-
-
-DiscussionIO.popen is a good way to run noninteractive commandscommands that read all their standard input at once and produce some output. But some programs are interactive; they send prompts to standard output, and expect a human on the other end to respond with more input.On Unix, you can use Ruby's standard PTY and expect libraries to spawn a command and impersonate a human on the other end. This code scripts the Unix passwd command:        require 'expect'
-        require 'pty'
-        
-        print 'Old password:'
-        old_pwd = gets.chomp
-
-        print "\nNew password:"
-        new_pwd = gets.chomp
-
-        PTY.spawn('passwd') do |read,write,pid|
-          write.sync = true
-          $expect_verbose = false
-        
-          # If 30 seconds pass and the expected text is not found, the
-          # response object will be nil.
-          read.expect("(current) UNIX password:", 30) do |response|
-            write.print old_pwd + "\n" if response
-          end
-
-          # You can use regular expressions instead of strings. The code block
-          # will give you the regex matches.
-          read.expect(/UNIX password: /, 2) do |response, *matches|
-            write.print new_pwd + "\n" if response
-          end
-
-          # The default value for the timeout is 9999999 seconds
-          read.expect("Retype new UNIX password:") do |response|
-            write.puts new_pwd + "\n" if response
-          end
-        end
-
-
-The read and write objects in the PTY#spawn block are IO objects. The expect library defines the IO#expect method found throughout this example.
-See AlsoRecipe 20.8, "Driving an  
-External Process with popen"Recipe 21.9, "Reading a Password," shows how to obtain a password without echoing it to the screen
-
-<<<<<<< HEAD
-
-
-=======
-
-* Session
-
-<<<<<<< HEAD
-** TODO use net-ssh-multi
-   
-=======
-**  TODO Capture session connection errors.
-
-* Output
-
-** DONE print session data to console
-
-** DONE Capture session data to CSV
-
-*** DONE Insert session data into a well-formated object
-
-*** DONE Open file with auto-generated name for writing
-
-*** DONE Read results hash into file using Ruby CSV library 
+* Controller
 
