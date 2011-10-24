@@ -62,6 +62,7 @@ Net::SSH::Multi.start(:concurrent_connections => my_ticket.options[:maxsess], \
   my_ticket.servers.each do |session_server|
     session.use session_server , :user =>  my_ticket.user_name ,  \
     :password => my_ticket.user_pass ,\
+    :timeout => 2 ,\
     :verbose => :error
  
 
@@ -100,7 +101,8 @@ Net::SSH::Multi.start(:concurrent_connections => my_ticket.options[:maxsess], \
     result_struct[:result] = " "
 
     # A pty is necessary for sudo, get one when we open the channel
-    channel.request_pty(:modes => { Net::SSH::Connection::Term::ECHO => 0 }) do |c, success|
+    channel.request_pty(:modes => \
+                        { Net::SSH::Connection::Term::ECHO => 0 }) do |c, success|
       raise "could not request pty" unless success
       
       #sends the command to the channel, ignoring any preceeding data:
@@ -147,6 +149,9 @@ Net::SSH::Multi.start(:concurrent_connections => my_ticket.options[:maxsess], \
           
         @result_hash[hostname] = result_struct
       end
+      
+      channel.wait
+
     end
     
     # run the aggregated event loop
